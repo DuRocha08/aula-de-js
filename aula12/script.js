@@ -62,6 +62,15 @@ function mostrarTurma(lista) {
       criarCelula(aluno.media.toFixed(1)),
       criarCelula(situacao)
     );
+    // clique duplo na linha: tira ESTE aluno da lista
+    linha.addEventListener("dblclick", function () {
+      const posicao = turma.indexOf(aluno); // em que posição ele está?
+      turma.splice(posicao, 1);             // tira 1 item nessa posição
+      aviso.classList.remove("erro");
+      aviso.textContent = aluno.nome + " saiu da turma.";
+      mostrarTurma(turma);
+    });
+
     tabela.append(linha);
   }
 }
@@ -102,6 +111,15 @@ form.addEventListener("submit", function (event) {
   aviso.textContent = nome + " cadastrado(a)!";
   form.reset();
   form.nome.focus();
+});
+
+// quando apertar Esc, limpa a busca
+busca.addEventListener("keydown", function (event) {
+  if (event.key === "Escape") {
+    busca.value = ""; // limpa o campo de busca
+    mostrarTurma(turma); // mostra todos os alunos novamente
+    vazio.textContent = "Nenhum aluno cadastrado.";
+  }
 });
 
 mostrarTurma(turma);
