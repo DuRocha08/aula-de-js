@@ -9,6 +9,27 @@ const vazio = document.querySelector("#vazio");
 const form = document.querySelector("#form-aluno");
 const aviso = document.querySelector("#aviso");
 
+const busca = document.querySelector("#busca");
+
+// QUANDO o usuário digitar no campo de busca (a cada letra)
+busca.addEventListener("input", function () {
+  // em minúsculas, para "ana" achar "Ana"
+  const termo = busca.value.toLowerCase();
+
+  // filter: só os alunos cujo nome tem o termo
+  const achados = turma.filter(function (aluno) {
+    return aluno.nome.toLowerCase().includes(termo);
+  });
+
+  // a tabela mostra só os achados
+  mostrarTurma(achados);
+  if (achados.length === 0) {
+    vazio.textContent = "Nenhum aluno com \"" + busca.value + "\".";
+  } else {
+    vazio.textContent = "Nenhum aluno cadastrado.";
+  }
+});
+
 // cria uma célula com o texto
 function criarCelula(texto) {
   const celula = document.createElement("td");
@@ -16,7 +37,7 @@ function criarCelula(texto) {
   return celula;
 }
 
-// mostra os alunos na tabela
+// desenha a tabela inteira a partir da lista (a mesma da aula 11)
 function mostrarTurma(lista) {
   if (lista.length === 0) {
     quadro.hidden = true;
@@ -30,20 +51,17 @@ function mostrarTurma(lista) {
 
   for (const aluno of lista) {
     let situacao = "reprovado";
-
     if (aluno.media >= 6) {
       situacao = "aprovado";
     }
 
     const linha = document.createElement("tr");
     linha.classList.add(situacao);
-
     linha.append(
       criarCelula(aluno.nome),
       criarCelula(aluno.media.toFixed(1)),
       criarCelula(situacao)
     );
-
     tabela.append(linha);
   }
 }
@@ -54,12 +72,10 @@ form.addEventListener("submit", function (event) {
   const nome = form.nome.value.trim();
   const nota = Number(form.nota.value);
 
-  // tira os erros anteriores
   form.nome.classList.remove("campo-erro");
   form.nota.classList.remove("campo-erro");
   aviso.classList.remove("erro");
 
-  // validação 1: o nome não pode ficar vazio
   if (nome === "") {
     form.nome.classList.add("campo-erro");
     aviso.classList.add("erro");
@@ -68,16 +84,6 @@ form.addEventListener("submit", function (event) {
     return;
   }
 
-  // validação 2: o nome precisa ter pelo menos 3 letras
-  if (nome.length < 3) {
-    form.nome.classList.add("campo-erro");
-    aviso.classList.add("erro");
-    aviso.textContent = "O nome precisa ter pelo menos 3 letras.";
-    form.nome.focus();
-    return;
-  }
-
-  // validação 3: a nota tem que estar entre 0 e 10
   if (form.nota.value === "" || nota < 0 || nota > 10) {
     form.nota.classList.add("campo-erro");
     aviso.classList.add("erro");
@@ -86,18 +92,16 @@ form.addEventListener("submit", function (event) {
     return;
   }
 
-  // coloca o aluno novo na lista
+  // 1. monta o objeto do aluno e coloca no fim da lista
   turma.push({ nome: nome, media: nota });
 
-  // mostra a tabela atualizada
+  // 2. desenha a tabela de novo, agora com o aluno novo
   mostrarTurma(turma);
 
-  // mostra a mensagem e limpa o formulário
+  // 3. avisa, limpa o formulário e volta o cursor para o nome
   aviso.textContent = nome + " cadastrado(a)!";
-
   form.reset();
   form.nome.focus();
-
 });
 
 mostrarTurma(turma);
