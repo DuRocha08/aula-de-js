@@ -16,7 +16,7 @@ function criarCelula(texto) {
   return celula;
 }
 
-// desenha a tabela inteira a partir da lista (a mesma da aula 11)
+// mostra os alunos na tabela
 function mostrarTurma(lista) {
   if (lista.length === 0) {
     quadro.hidden = true;
@@ -30,32 +30,74 @@ function mostrarTurma(lista) {
 
   for (const aluno of lista) {
     let situacao = "reprovado";
+
     if (aluno.media >= 6) {
       situacao = "aprovado";
     }
 
     const linha = document.createElement("tr");
     linha.classList.add(situacao);
+
     linha.append(
       criarCelula(aluno.nome),
       criarCelula(aluno.media.toFixed(1)),
       criarCelula(situacao)
     );
+
     tabela.append(linha);
   }
 }
 
-// QUANDO o formulário for enviado (clique no botão OU Enter num campo)
 form.addEventListener("submit", function (event) {
-  // 1. não deixa o navegador recarregar a página
   event.preventDefault();
 
-  // 2. lê o que foi digitado: form.nome é o campo com name="nome"
-  const nome = form.nome.value;
-  const nota = form.nota.value;
+  const nome = form.nome.value.trim();
+  const nota = Number(form.nota.value);
 
-  // 3. por enquanto, só mostra o que chegou
-  aviso.textContent = "Recebi: " + nome + ", nota " + nota;
+  // tira os erros anteriores
+  form.nome.classList.remove("campo-erro");
+  form.nota.classList.remove("campo-erro");
+  aviso.classList.remove("erro");
+
+  // validação 1: o nome não pode ficar vazio
+  if (nome === "") {
+    form.nome.classList.add("campo-erro");
+    aviso.classList.add("erro");
+    aviso.textContent = "Escreva o nome do aluno.";
+    form.nome.focus();
+    return;
+  }
+
+  // validação 2: o nome precisa ter pelo menos 3 letras
+  if (nome.length < 3) {
+    form.nome.classList.add("campo-erro");
+    aviso.classList.add("erro");
+    aviso.textContent = "O nome precisa ter pelo menos 3 letras.";
+    form.nome.focus();
+    return;
+  }
+
+  // validação 3: a nota tem que estar entre 0 e 10
+  if (form.nota.value === "" || nota < 0 || nota > 10) {
+    form.nota.classList.add("campo-erro");
+    aviso.classList.add("erro");
+    aviso.textContent = "A nota tem que ser de 0 a 10.";
+    form.nota.focus();
+    return;
+  }
+
+  // coloca o aluno novo na lista
+  turma.push({ nome: nome, media: nota });
+
+  // mostra a tabela atualizada
+  mostrarTurma(turma);
+
+  // mostra a mensagem e limpa o formulário
+  aviso.textContent = nome + " cadastrado(a)!";
+
+  form.reset();
+  form.nome.focus();
+
 });
 
 mostrarTurma(turma);
